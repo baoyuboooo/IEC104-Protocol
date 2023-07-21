@@ -18,12 +18,12 @@ public enum RemoteOperateTypeEnum {
     /**
      * 总召唤遥信数据
      */
-    GENERAL_CALL_HARUNOBU_REPLY("general_call_harunobu", "总召唤遥信数据"),
+    GENERAL_CALL_HARUNOBU("general_call_harunobu", "总召唤遥信数据"),
 
     /**
      * 总召唤遥测数据
      */
-    GENERAL_CALL_REPLY_TELEMETRY_REPLY("general_call_telemetry", "总召唤遥测数据"),
+    GENERAL_CALL_TELEMETRY("general_call_telemetry", "总召唤遥测数据"),
 
     /**
      * 总召唤结束
