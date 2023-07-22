@@ -30,12 +30,23 @@ import java.util.Map;
 public final class MessageFactory {
 
     /**
-     * 根据 客户端下发的远程操控 构建 IEC104协议消息 (业务模型 -> 协议模型)
+     * 根据 客户端业务推送的远程操控 构建 IEC104协议消息 (业务模型 -> 协议模型)
      *
      * @param remoteOperation 远程操控
      * @return IEC104协议消息
      */
     public static Message buildClientMessageByRemoteOperation(RemoteOperation remoteOperation) {
+        return new Message();
+    }
+
+
+    /**
+     * 根据 服务端业务推送的远程操控 构建 IEC104协议消息 (业务模型 -> 协议模型)
+     *
+     * @param remoteOperation 远程操控
+     * @return IEC104协议消息
+     */
+    public static Message buildServerMessageByRemoteOperation(RemoteOperation remoteOperation) {
         return new Message();
     }
 

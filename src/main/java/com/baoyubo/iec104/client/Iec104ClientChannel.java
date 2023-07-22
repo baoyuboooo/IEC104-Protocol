@@ -26,14 +26,14 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 
 /**
- * IEC104协议 客户端
+ * IEC104协议 客户端 Channel
  *
  * @author yubo.bao
  * @date 2023/7/20 15:06
  */
-public class Iec104Client implements ClientChannel {
+public class Iec104ClientChannel implements ClientChannel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Iec104Client.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Iec104ClientChannel.class);
 
     /**
      * 客户端连接句柄
@@ -47,7 +47,7 @@ public class Iec104Client implements ClientChannel {
      * @param config       客户端配置
      * @param dataConsumer 客户端数据消费者
      */
-    public Iec104Client(ClientConfig config, Consumer<RemoteOperation> dataConsumer) {
+    public Iec104ClientChannel(ClientConfig config, Consumer<RemoteOperation> dataConsumer) {
         this.channelFuture = initIEC104Client(config, dataConsumer);
     }
 
@@ -82,18 +82,18 @@ public class Iec104Client implements ClientChannel {
 
 
     @Override
-    public void sendRemoteOperation(RemoteOperation remoteOperation) {
-        LOGGER.info("[客户端-下发远程控制] {} , RemoteOperation : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(remoteOperation));
+    public void push(RemoteOperation remoteOperation) {
+        LOGGER.info("[客户端-推送远程操控] {} , RemoteOperation : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(remoteOperation));
 
         Message message = MessageFactory.buildClientMessageByRemoteOperation(remoteOperation);
-        LOGGER.info("[客户端-下发远程控制] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
+        LOGGER.info("[客户端-推送远程操控] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
 
         channelFuture.channel().writeAndFlush(message);
     }
 
 
     @Override
-    public void close() {
+    public void closeClient() {
         if (this.channelFuture != null) {
             this.channelFuture.channel().close();
         }
