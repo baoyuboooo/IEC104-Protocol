@@ -11,7 +11,6 @@ import com.baoyubo.iec104.handler.LengthAndHeaderPrepender;
 import com.baoyubo.iec104.model.Message;
 import com.baoyubo.iec104.util.JsonUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -19,6 +18,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,9 @@ public class Iec104ClientChannel implements ClientChannel {
     private static final Logger LOGGER = LoggerFactory.getLogger(Iec104ClientChannel.class);
 
     /**
-     * 客户端连接句柄
+     * 客户端数据处理
      */
-    private final ChannelFuture channelFuture;
+    private ClientDataHandler clientDataHandler;
 
 
     /**
@@ -48,7 +49,7 @@ public class Iec104ClientChannel implements ClientChannel {
      * @param dataConsumer 客户端数据消费者
      */
     public Iec104ClientChannel(ClientConfig config, Consumer<RemoteOperation> dataConsumer) {
-        this.channelFuture = initIEC104Client(config, dataConsumer);
+        this.clientDataHandler = initIEC104Client(config, dataConsumer);
     }
 
 
@@ -59,7 +60,11 @@ public class Iec104ClientChannel implements ClientChannel {
      * @param bizDataConsumer 客户端业务数据消费者
      * @return 客户端连接句柄
      */
-    private ChannelFuture initIEC104Client(ClientConfig config, Consumer<RemoteOperation> bizDataConsumer) {
+    private ClientDataHandler initIEC104Client(ClientConfig config, Consumer<RemoteOperation> bizDataConsumer) {
+
+        // 客户端数据处理
+        ClientDataHandler clientDataHandler = new ClientDataHandler(bizDataConsumer);
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap()
                 .group(bossGroup)
@@ -68,16 +73,19 @@ public class Iec104ClientChannel implements ClientChannel {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(255, 1, 1, 0, 0));
                         ch.pipeline().addLast(new LengthAndHeaderPrepender());
                         ch.pipeline().addLast(new IdleStateHandler(config.getChannelTestDuration(), 0, 0));
                         ch.pipeline().addLast(new DataEncoder("客户端"));
                         ch.pipeline().addLast(new DataDecoder("客户端"));
                         ch.pipeline().addLast(new CommonDataHandler("客户端"));
-                        ch.pipeline().addLast(new ClientDataHandler(bizDataConsumer));
+                        ch.pipeline().addLast(clientDataHandler);
                     }
                 });
-        return bootstrap.connect(config.getRemoteHost(), config.getRemotePort());
+        bootstrap.connect(config.getRemoteHost(), config.getRemotePort());
+
+        return clientDataHandler;
     }
 
 
@@ -86,16 +94,14 @@ public class Iec104ClientChannel implements ClientChannel {
         LOGGER.info("[客户端-推送远程操控] {} , RemoteOperation : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(remoteOperation));
 
         Message message = MessageFactory.buildClientMessageByRemoteOperation(remoteOperation);
-        LOGGER.info("[客户端-推送远程操控] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
+        LOGGER.debug("[客户端-推送远程操控] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
 
-        channelFuture.channel().writeAndFlush(message);
+        this.clientDataHandler.getCtx().writeAndFlush(message);
     }
 
 
     @Override
     public void closeClient() {
-        if (this.channelFuture != null) {
-            this.channelFuture.channel().close();
-        }
+        this.clientDataHandler.getCtx().close();
     }
 }

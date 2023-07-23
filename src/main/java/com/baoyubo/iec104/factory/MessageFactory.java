@@ -1,5 +1,6 @@
 package com.baoyubo.iec104.factory;
 
+import com.baoyubo.business.enums.RemoteOperateTypeEnum;
 import com.baoyubo.business.model.RemoteOperation;
 import com.baoyubo.iec104.constant.Constants;
 import com.baoyubo.iec104.enums.FrameTypeEnum;
@@ -31,23 +32,54 @@ public final class MessageFactory {
 
     /**
      * 根据 客户端业务推送的远程操控 构建 IEC104协议消息 (业务模型 -> 协议模型)
+     * <p>
+     * * 总召唤
+     * * 遥控
      *
      * @param remoteOperation 远程操控
      * @return IEC104协议消息
      */
     public static Message buildClientMessageByRemoteOperation(RemoteOperation remoteOperation) {
-        return new Message();
+        RemoteOperateTypeEnum operateType = remoteOperation.getOperateType();
+        switch (operateType) {
+            case GENERAL_CALL:
+                return buildClientGeneralCallMessage();
+            case REMOTE_CONTROL:
+                return buildClientRemoteControlSelectMessage(remoteOperation.getParams());
+            default:
+                throw new RuntimeException("客户端不支持");
+        }
     }
 
 
     /**
      * 根据 服务端业务推送的远程操控 构建 IEC104协议消息 (业务模型 -> 协议模型)
+     * <p>
+     * * 遥信
+     * * 总召唤遥信
+     * * 遥测
+     * * 总召唤遥测
+     * * 总召唤结束
      *
      * @param remoteOperation 远程操控
      * @return IEC104协议消息
      */
     public static Message buildServerMessageByRemoteOperation(RemoteOperation remoteOperation) {
-        return new Message();
+        RemoteOperateTypeEnum operateType = remoteOperation.getOperateType();
+        switch (operateType) {
+            case GENERAL_CALL_HARUNOBU:
+                return buildServerHarunobuMessage(true, remoteOperation.getParams());
+            case HARUNOBU:
+                return buildServerHarunobuMessage(false, remoteOperation.getParams());
+            case GENERAL_CALL_TELEMETRY:
+                return buildServerTelemetryMessage(true, remoteOperation.getParams());
+            case TELEMETRY:
+                return buildServerTelemetryMessage(false, remoteOperation.getParams());
+            case GENERAL_CALL_END:
+                return buildServerGeneralCallEndMessage();
+            default:
+                throw new RuntimeException("服务端不支持");
+        }
     }
 
 
@@ -173,7 +205,7 @@ public final class MessageFactory {
      * @param params        参数信息，值为整数类型, 占用1字节 (0-关， 1-开)
      * @return IEC104协议消息
      */
-    public static Message buildServerCallHarunobuMessage(boolean isGeneralCall, Map<Integer, Object> params) {
+    public static Message buildServerHarunobuMessage(boolean isGeneralCall, Map<Integer, Object> params) {
 
         List<MessageInfo> messageInfoList = new ArrayList<>(params.size());
         params.forEach((infoAddr, value) -> {

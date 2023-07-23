@@ -11,13 +11,14 @@ import com.baoyubo.iec104.handler.ServerDataHandler;
 import com.baoyubo.iec104.model.Message;
 import com.baoyubo.iec104.util.JsonUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,9 @@ public class Iec104ServerChannel implements ServerChannel {
     private static final Logger LOGGER = LoggerFactory.getLogger(Iec104ServerChannel.class);
 
     /**
-     * 服务端连接句柄
+     * 服务端数据处理
      */
-    private final ChannelFuture channelFuture;
+    private final ServerDataHandler serverDataHandler;
 
 
     /**
@@ -47,7 +48,7 @@ public class Iec104ServerChannel implements ServerChannel {
      * @param dataConsumer 服务端数据消费者
      */
     public Iec104ServerChannel(ServerConfig config, Consumer<RemoteOperation> dataConsumer) {
-        this.channelFuture = initIEC104Server(config, dataConsumer);
+        this.serverDataHandler = initIEC104Server(config, dataConsumer);
     }
 
 
@@ -58,7 +59,11 @@ public class Iec104ServerChannel implements ServerChannel {
      * @param bizDataConsumer 服务端业务数据消费者
      * @return 服务端连接句柄
      */
-    private ChannelFuture initIEC104Server(ServerConfig config, Consumer<RemoteOperation> bizDataConsumer) {
+    private ServerDataHandler initIEC104Server(ServerConfig config, Consumer<RemoteOperation> bizDataConsumer) {
+
+        // 服务端数据处理
+        ServerDataHandler serverDataHandler = new ServerDataHandler(bizDataConsumer);
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap()
@@ -67,16 +72,19 @@ public class Iec104ServerChannel implements ServerChannel {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(255, 1, 1, 0, 0));
                         ch.pipeline().addLast(new LengthAndHeaderPrepender());
                         ch.pipeline().addLast(new IdleStateHandler(config.getChannelTestDuration(), 0, 0));
                         ch.pipeline().addLast(new DataEncoder("服务端"));
                         ch.pipeline().addLast(new DataDecoder("服务端"));
                         ch.pipeline().addLast(new CommonDataHandler("服务端"));
-                        ch.pipeline().addLast(new ServerDataHandler(bizDataConsumer));
+                        ch.pipeline().addLast(serverDataHandler);
                     }
                 });
-        return serverBootstrap.bind(config.getPort());
+        serverBootstrap.bind(config.getPort());
+
+        return serverDataHandler;
     }
 
 
@@ -85,16 +93,14 @@ public class Iec104ServerChannel implements ServerChannel {
         LOGGER.info("[服务端-推送远程操控] {} , RemoteOperation : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(remoteOperation));
 
         Message message = MessageFactory.buildServerMessageByRemoteOperation(remoteOperation);
-        LOGGER.info("[服务端-推送远程操控] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
+        LOGGER.debug("[服务端-推送远程操控] {} , Message : {}", remoteOperation.getOperateType().getDescription(), JsonUtil.toJsonString(message));
 
-        channelFuture.channel().writeAndFlush(message);
+        this.serverDataHandler.getCtx().writeAndFlush(message);
     }
 
 
     @Override
     public void closeServer() {
-        if (this.channelFuture != null) {
-            this.channelFuture.channel().close();
-        }
+        this.serverDataHandler.getCtx().close();
     }
 }

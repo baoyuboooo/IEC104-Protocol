@@ -36,12 +36,12 @@ public class DataEncoder extends MessageToByteEncoder<Message> {
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, Message message, ByteBuf byteBuf) throws Exception {
-        LOGGER.info("[{}-编码器] 准备执行消息编码, Message : {}", name, JsonUtil.toJsonString(message));
+        LOGGER.debug("[{}-编码器] 准备执行消息编码, Message : {}", name, JsonUtil.toJsonString(message));
 
         byte[] bytes = encode(message);
         byteBuf.writeBytes(bytes);
 
-        LOGGER.info("[{}-编码器] 消息编码完成并发送 HexString : {}", name, ByteUtil.toHexString(bytes));
+        LOGGER.debug("[{}-编码器] 消息编码完成并发送 HexString : {}", name, ByteUtil.toHexString(bytes));
     }
 
 

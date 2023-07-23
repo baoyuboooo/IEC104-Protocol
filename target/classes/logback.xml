@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 'debug' : need to print logback own debug information -->
+<!-- 'scan' : auto refresh configure when updated -->
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+
+    <!-- basic define -->
+    <property name="APP_NAME" value="pe-eco-micro" />
+
+    <!-- In order to maintain consistency of the log format (%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} [%X{logType}] [%X{requestId}] %m%n) -->
+    <!-- Log control module will add 'domainName' and 'requestId' before every event message -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %m%n" />
+    <property name="LOG_CHARSET" value="utf-8" />
+    <property name="LOG_HOME" value="${log.home:-/data/logs/pe-eco-micro}" />
+
+
+    <!-- Filter unnecessary log (include 3PP log) in global scenario with debug level -->
+    <logger name="org.apache.zookeeper.ClientCnxn" level="INFO" />
+    <logger name="org.eclipse.jetty.io" level="INFO"/>
+    <logger name="org.eclipse.jetty.util" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.HttpConnection" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.HttpInputOverHTTP" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.HttpChannelState" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.HttpInput" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.handler.ContextHandler" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.session" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.Server" level="INFO"/>
+    <logger name="org.eclipse.jetty.servlet.ServletHandler" level="INFO"/>
+    <logger name="org.eclipse.jetty.server.HttpChannel" level="INFO"/>
+    <logger name="org.eclipse.jetty.http.HttpGenerator" level="INFO"/>
+    <logger name="org.eclipse.jetty.http.HttpParser" level="INFO"/>
+    <logger name="org.springframework.data.redis.core.RedisConnectionUtils" level="INFO" />
+    <logger name="org.springframework.integration.redis.util.RedisLockRegistry" level="INFO" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor" level="INFO"/>
+    <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory" level="INFO"/>
+    <logger name="falcon.org.apache.http" level="INFO" />
+    <logger name="org.springframework.boot.actuate.endpoint.mvc.EndpointHandlerMapping" level="INFO" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor" level="INFO" />
+    <logger name="org.springframework.core.env.PropertySourcesPropertyResolver" level="INFO" />
+
+
+    <!-- CONSOLE LOG -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <charset>${LOG_CHARSET}</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- FULL EVENT LOG -->
+    <appender name="APP_EVENT_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${LOG_CHARSET}</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+
+    <!-- ERROR EVENT LOG -->
+    <appender name="APP_ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}_error.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${LOG_CHARSET}</charset>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${APP_NAME}_error.%d{yyyy-MM-dd}.%i.log.gz
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+
+    <root level="INFO">
+        <!-- STDOUT default disabled. -->
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="APP_EVENT_LOG" />
+        <appender-ref ref="APP_ERROR_LOG" />
+    </root>
+</configuration>

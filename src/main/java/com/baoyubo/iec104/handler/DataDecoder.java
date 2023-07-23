@@ -48,7 +48,13 @@ public class DataDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        LOGGER.info("[{}-解码器] 准备执行消息解码, HexString : {}", name, ByteUtil.toHexString(byteBuf.array()));
+        if (LOGGER.isDebugEnabled()) {
+            // 将 ByteBuf 转换为 byte[]，并且不移动读指针
+            byte[] data = new byte[byteBuf.readableBytes()];
+            byteBuf.copy().readBytes(data);
+            LOGGER.debug("[{}-解码器] 准备执行消息解码, HexString : {}", name, ByteUtil.toHexString(data));
+        }
+
 
         // 跳过 固定头字段 和 APDU长度字段
         byteBuf.skipBytes(Constants.HEADER_FIELD_LEN + Constants.APDU_LENGTH_FIELD_LEN);
@@ -57,7 +63,7 @@ public class DataDecoder extends ByteToMessageDecoder {
         Message message = decode(byteBuf);
         list.add(message);
 
-        LOGGER.info("[{}-解码器] 消息解码完成 Message : {}", name, JsonUtil.toJsonString(message));
+        LOGGER.debug("[{}-解码器] 消息解码完成 Message : {}", name, JsonUtil.toJsonString(message));
     }
 
 

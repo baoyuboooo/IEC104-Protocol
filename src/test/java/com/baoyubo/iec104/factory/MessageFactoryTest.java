@@ -103,7 +103,7 @@ class MessageFactoryTest {
         params.put(100, (int) 1);
         params.put(200, (int) 0);
 
-        Message message = MessageFactory.buildServerCallHarunobuMessage(true, params);
+        Message message = MessageFactory.buildServerHarunobuMessage(true, params);
         byte[] bytes = encode(message);
         Assertions.assertEquals("00 00 00 00 01 02 14 00 00 00 64 00 00 01 C8 00 00 00", ByteUtil.toHexString(bytes));
 
@@ -187,11 +187,10 @@ class MessageFactoryTest {
     public void buildClientRemoteControlSelectMessage() {
         Map<Integer, Object> params = new HashMap<>();
         params.put(100, 1);
-        params.put(200, 0);
 
         Message message = MessageFactory.buildClientRemoteControlSelectMessage(params);
         byte[] bytes = encode(message);
-        Assertions.assertEquals("00 00 00 00 2E 02 06 00 00 00 64 00 00 82 C8 00 00 80", ByteUtil.toHexString(bytes));
+        Assertions.assertEquals("00 00 00 00 2E 01 06 00 00 00 64 00 00 82", ByteUtil.toHexString(bytes));
 
         Message decodeMessage = decode(bytes);
         Assertions.assertEquals(JsonUtil.toJsonString(message), JsonUtil.toJsonString(decodeMessage));
@@ -201,12 +200,11 @@ class MessageFactoryTest {
     public void buildServerRemoteControlSelectReplyMessage() {
         Map<Integer, Object> params = new HashMap<>();
         params.put(100, 1);
-        params.put(200, 0);
         Message receivedMessage = MessageFactory.buildClientRemoteControlSelectMessage(params);
 
         Message message = MessageFactory.buildServerRemoteControlSelectReplyMessage(receivedMessage);
         byte[] bytes = encode(message);
-        Assertions.assertEquals("00 00 00 00 2E 02 07 00 00 00 64 00 00 82 C8 00 00 80", ByteUtil.toHexString(bytes));
+        Assertions.assertEquals("00 00 00 00 2E 01 07 00 00 00 64 00 00 82", ByteUtil.toHexString(bytes));
 
         Message decodeMessage = decode(bytes);
         Assertions.assertEquals(JsonUtil.toJsonString(message), JsonUtil.toJsonString(decodeMessage));
@@ -216,13 +214,12 @@ class MessageFactoryTest {
     public void buildClientRemoteControlExecuteMessage() {
         Map<Integer, Object> params = new HashMap<>();
         params.put(100, 1);
-        params.put(200, 0);
         Message receivedMessage = MessageFactory.buildClientRemoteControlSelectMessage(params);
         receivedMessage = MessageFactory.buildServerRemoteControlSelectReplyMessage(receivedMessage);
 
         Message message = MessageFactory.buildClientRemoteControlExecuteMessage(receivedMessage);
         byte[] bytes = encode(message);
-        Assertions.assertEquals("00 00 00 00 2E 02 06 00 00 00 64 00 00 02 C8 00 00 00", ByteUtil.toHexString(bytes));
+        Assertions.assertEquals("00 00 00 00 2E 01 06 00 00 00 64 00 00 02", ByteUtil.toHexString(bytes));
 
         Message decodeMessage = decode(bytes);
         Assertions.assertEquals(JsonUtil.toJsonString(message), JsonUtil.toJsonString(decodeMessage));
@@ -232,14 +229,13 @@ class MessageFactoryTest {
     public void buildServerRemoteControlExecuteReplyMessage() {
         Map<Integer, Object> params = new HashMap<>();
         params.put(100, 1);
-        params.put(200, 0);
         Message receivedMessage = MessageFactory.buildClientRemoteControlSelectMessage(params);
         receivedMessage = MessageFactory.buildServerRemoteControlSelectReplyMessage(receivedMessage);
         receivedMessage = MessageFactory.buildClientRemoteControlExecuteMessage(receivedMessage);
 
         Message message = MessageFactory.buildServerRemoteControlExecuteReplyMessage(receivedMessage);
         byte[] bytes = encode(message);
-        Assertions.assertEquals("00 00 00 00 2E 02 07 00 00 00 64 00 00 02 C8 00 00 00", ByteUtil.toHexString(bytes));
+        Assertions.assertEquals("00 00 00 00 2E 01 07 00 00 00 64 00 00 02", ByteUtil.toHexString(bytes));
 
         Message decodeMessage = decode(bytes);
         Assertions.assertEquals(JsonUtil.toJsonString(message), JsonUtil.toJsonString(decodeMessage));
@@ -249,7 +245,6 @@ class MessageFactoryTest {
     public void buildServerRemoteControlExecuteEndMessage() {
         Map<Integer, Object> params = new HashMap<>();
         params.put(100, 1);
-        params.put(200, 0);
         Message receivedMessage = MessageFactory.buildClientRemoteControlSelectMessage(params);
         receivedMessage = MessageFactory.buildServerRemoteControlSelectReplyMessage(receivedMessage);
         receivedMessage = MessageFactory.buildClientRemoteControlExecuteMessage(receivedMessage);
@@ -257,7 +252,7 @@ class MessageFactoryTest {
 
         Message message = MessageFactory.buildServerRemoteControlExecuteEndMessage(receivedMessage);
         byte[] bytes = encode(message);
-        Assertions.assertEquals("00 00 00 00 2E 02 0A 00 00 00 64 00 00 02 C8 00 00 00", ByteUtil.toHexString(bytes));
+        Assertions.assertEquals("00 00 00 00 2E 01 0A 00 00 00 64 00 00 02", ByteUtil.toHexString(bytes));
 
         Message decodeMessage = decode(bytes);
         Assertions.assertEquals(JsonUtil.toJsonString(message), JsonUtil.toJsonString(decodeMessage));

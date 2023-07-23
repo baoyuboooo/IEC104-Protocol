@@ -17,6 +17,7 @@ public interface ServerChannel {
      * * 总召唤遥信
      * * 遥测
      * * 总召唤遥测
+     * * 总召唤结束
      *
      * @param remoteOperation 远程操控
      */
