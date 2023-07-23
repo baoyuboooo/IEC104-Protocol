@@ -64,12 +64,12 @@ public enum TypeIdentifierEnum {
     SHORT_FLOAT_POINT_TELEMETRY(13, 0x0D, 4),
 
     /**
-     * 单命令 遥控
+     * 单点遥控
      */
     ONE_POINT_REMOTE_CONTROL(45, 0x2D, 1),
 
     /**
-     * 双命令 遥控
+     * 双点遥控
      */
     TWO_POINT_REMOTE_CONTROL(46, 0x2E, 1),
     ;

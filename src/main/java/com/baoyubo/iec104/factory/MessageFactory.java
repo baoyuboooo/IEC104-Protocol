@@ -426,7 +426,7 @@ public final class MessageFactory {
         });
 
 
-        // 双命令 遥控
+        // 双点遥控
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.TWO_POINT_REMOTE_CONTROL);
         asdu.setVsq(new MessageVSQ(false, messageInfoList.size()));
@@ -480,7 +480,13 @@ public final class MessageFactory {
         List<MessageInfo> messageInfoList = new ArrayList<>(receivedMessage.getAsdu().getMessageInfoList().size());
         receivedMessage.getAsdu().getMessageInfoList().forEach(receivedMessageInfo -> {
             byte receivedDCO = receivedMessageInfo.getInfoValue()[0];
-            byte newDCO = Iec104ByteUtil.updateRemoteControlValueSE(receivedDCO, Constants.REMOTE_CONTROL_SE_EXECUTE);
+
+            int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(receivedDCO);
+            int se = res[0];
+            int qu = res[1];
+            int scs = res[2];
+
+            byte newDCO = Iec104ByteUtil.buildRemoteControlValueDCO(Constants.REMOTE_CONTROL_SE_EXECUTE, qu, scs);
 
             MessageInfo messageInfo = new MessageInfo();
             messageInfo.setInfoAddress(receivedMessageInfo.getInfoAddress());

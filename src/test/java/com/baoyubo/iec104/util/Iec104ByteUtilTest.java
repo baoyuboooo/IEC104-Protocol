@@ -123,32 +123,27 @@ class Iec104ByteUtilTest {
     }
 
     @Test
+    public void parseRemoteControlValueSCO() {
+        byte sco = Iec104ByteUtil.buildRemoteControlValueSCO(1, 0, 1);
+        int[] res = Iec104ByteUtil.parseRemoteControlValueSCO(sco);
+        Assertions.assertEquals(1, res[0]);
+        Assertions.assertEquals(0, res[1]);
+        Assertions.assertEquals(1, res[2]);
+    }
+
+    @Test
     public void buildRemoteControlValueDCO() {
-        byte dco = Iec104ByteUtil.buildRemoteControlValueDCO(1, 0, 1);
-        Assertions.assertEquals("10000001", ByteUtil.toBinaryString(dco));
+        byte dco = Iec104ByteUtil.buildRemoteControlValueDCO(1, 0, 2);
+        Assertions.assertEquals("10000010", ByteUtil.toBinaryString(dco));
     }
 
     @Test
-    public void getRemoteControlValueSE() {
-        byte sco = Iec104ByteUtil.buildRemoteControlValueSCO(1, 0, 1);
-        Assertions.assertEquals(1, Iec104ByteUtil.getRemoteControlValueSE(sco));
-
-        byte dco = Iec104ByteUtil.buildRemoteControlValueDCO(1, 0, 1);
-        Assertions.assertEquals(1, Iec104ByteUtil.getRemoteControlValueSE(dco));
+    public void parseRemoteControlValueDCO() {
+        byte dco = Iec104ByteUtil.buildRemoteControlValueDCO(1, 0, 2);
+        int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(dco);
+        Assertions.assertEquals(1, res[0]);
+        Assertions.assertEquals(0, res[1]);
+        Assertions.assertEquals(2, res[2]);
     }
-
-    @Test
-    public void updateRemoteControlValueSE() {
-        byte sco = Iec104ByteUtil.buildRemoteControlValueSCO(1, 0, 1);
-        Assertions.assertEquals("10000001", ByteUtil.toBinaryString(sco));
-        byte scoRes = Iec104ByteUtil.updateRemoteControlValueSE(sco, 0);
-        Assertions.assertEquals("00000001", ByteUtil.toBinaryString(scoRes));
-
-        byte dco = Iec104ByteUtil.buildRemoteControlValueDCO(1, 0, 1);
-        Assertions.assertEquals("10000001", ByteUtil.toBinaryString(dco));
-        byte dcoRes = Iec104ByteUtil.updateRemoteControlValueSE(dco, 0);
-        Assertions.assertEquals("00000001", ByteUtil.toBinaryString(dcoRes));
-    }
-
 
 }

@@ -71,7 +71,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("[客户端-关闭连接]");
         // 通知客户端业务：连接关闭
-        RemoteOperation remoteOperate = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
+        RemoteOperation remoteOperate = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
         bizDataConsumer.accept(remoteOperate);
     }
 
@@ -191,7 +191,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
         // 总召唤-结束
         if (TypeIdentifierEnum.GENERAL_CALL == typeIdentifierEnum && Constants.COT_10 == asdu.getTransferReason()) {
             // 通知客户端业务：总召唤结束
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_END, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_END, message);
             bizDataConsumer.accept(remoteOperation);
 
             LOGGER.info("[客户端-收到I帧消息-总召唤] 总召唤-结束, 开始下发 时钟同步-命令");
@@ -248,7 +248,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
         if (TypeIdentifierEnum.isHarunobu(typeIdentifierEnum) && Constants.COT_20 == asdu.getTransferReason()) {
             LOGGER.info("[客户端-收到I帧消息-遥信数据] 总召唤-遥信数据");
             // 通知客户端业务：总召唤-遥信数据
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_HARUNOBU, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_HARUNOBU, message);
             bizDataConsumer.accept(remoteOperation);
             return;
         }
@@ -257,7 +257,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
         if (TypeIdentifierEnum.isHarunobu(typeIdentifierEnum) && Constants.COT_3 == asdu.getTransferReason()) {
             LOGGER.info("[客户端-收到I帧消息-遥信数据] 遥信数据");
             // 通知客户端业务：总召唤-遥信数据
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.HARUNOBU, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.HARUNOBU, message);
             bizDataConsumer.accept(remoteOperation);
             return;
         }
@@ -281,7 +281,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
         if (TypeIdentifierEnum.isTelemetry(typeIdentifierEnum) && Constants.COT_20 == asdu.getTransferReason()) {
             LOGGER.info("[客户端-收到I帧消息-遥测数据] 总召唤-遥测数据");
             // 通知客户端业务：总召唤-遥测数据
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_TELEMETRY, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL_TELEMETRY, message);
             bizDataConsumer.accept(remoteOperation);
             return;
         }
@@ -290,7 +290,7 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
         if (TypeIdentifierEnum.isTelemetry(typeIdentifierEnum) && Constants.COT_3 == asdu.getTransferReason()) {
             LOGGER.info("[客户端-收到I帧消息-遥测数据] 遥测数据");
             // 通知客户端业务：遥测数据
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.TELEMETRY, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.TELEMETRY, message);
             bizDataConsumer.accept(remoteOperation);
             return;
         }
@@ -309,8 +309,13 @@ public class ClientDataHandler extends SimpleChannelInboundHandler<Message> {
 
         MessageASDU asdu = message.getAsdu();
         TypeIdentifierEnum typeIdentifierEnum = asdu.getTypeIdentifier();
-        byte remoteControlValue = asdu.getMessageInfoList().get(0).getInfoValue()[0];
-        int se = Iec104ByteUtil.getRemoteControlValueSE(remoteControlValue);
+
+        // 双命令遥控信息 DCO
+        byte dco = asdu.getMessageInfoList().get(0).getInfoValue()[0];
+        int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(dco);
+        int se = res[0];
+        int qu = res[1];
+        int scs = res[2];
 
         // 遥控选择-确认
         if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && Constants.COT_7 == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_SELECT == se) {

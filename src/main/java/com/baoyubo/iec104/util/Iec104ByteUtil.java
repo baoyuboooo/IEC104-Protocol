@@ -197,6 +197,20 @@ public final class Iec104ByteUtil {
 
 
     /**
+     * 解析 单命令遥控信息 SCO
+     *
+     * @param sco SCO
+     * @return [se, qu, scs]
+     */
+    public static int[] parseRemoteControlValueSCO(byte sco) {
+        int se = (sco >> 7) & 0x01;
+        int qu = (sco >> 2) & 0x1F;
+        int scs = sco & 0x01;
+        return new int[]{se, qu, scs};
+    }
+
+
+    /**
      * 构建 双命令遥控信息 DCO
      *
      * @param se  遥控选择标志: 0-执行, 1-选择
@@ -214,29 +228,16 @@ public final class Iec104ByteUtil {
 
 
     /**
-     * 获取 遥控选择标志se
+     * 解析 双命令遥控信息 DCO
      *
-     * @param remoteControlValue 遥控值 SCO\DCO
-     * @return 遥控选择标志: 0-执行, 1-选择
+     * @param dco DCO
+     * @return [se, qu, scs]
      */
-    public static int getRemoteControlValueSE(byte remoteControlValue) {
-        return (remoteControlValue >> 7) & 0x01;
-    }
-
-
-    /**
-     * 更新 遥控选择标志se
-     *
-     * @param remoteControlValue 遥控值 SCO\DCO
-     * @param se                 遥控选择标志: 0-执行, 1-选择
-     * @return 更新后的遥控值
-     */
-    public static byte updateRemoteControlValueSE(byte remoteControlValue, int se) {
-        if (se == 0) {
-            return (byte) (remoteControlValue & 0x7F);
-        } else {
-            return (byte) (remoteControlValue | 0x80);
-        }
+    public static int[] parseRemoteControlValueDCO(byte dco) {
+        int se = (dco >> 7) & 0x01;
+        int qu = (dco >> 2) & 0x1F;
+        int scs = dco & 0x03;
+        return new int[]{se, qu, scs};
     }
 
 

@@ -69,7 +69,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("[服务端-关闭连接]");
         //通知服务端业：连接关闭
-        RemoteOperation remoteOperate = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
+        RemoteOperation remoteOperate = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
         bizDataConsumer.accept(remoteOperate);
     }
 
@@ -150,7 +150,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
             // 1 总召唤-遥信
             // 2 总召唤-遥测
             // 3 总召唤-结束
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.GENERAL_CALL, message);
             bizDataConsumer.accept(remoteOperation);
             return;
         }
@@ -200,8 +200,13 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
 
         MessageASDU asdu = message.getAsdu();
         TypeIdentifierEnum typeIdentifierEnum = asdu.getTypeIdentifier();
-        byte remoteControlValue = asdu.getMessageInfoList().get(0).getInfoValue()[0];
-        int se = Iec104ByteUtil.getRemoteControlValueSE(remoteControlValue);
+
+        // 双命令遥控信息 DCO
+        byte dco = asdu.getMessageInfoList().get(0).getInfoValue()[0];
+        int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(dco);
+        int se = res[0];
+        int qu = res[1];
+        int scs = res[2];
 
         // 遥控选择-命令
         if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && Constants.COT_6 == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_SELECT == se) {
@@ -218,7 +223,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
             ctx.writeAndFlush(newMessage);
 
             // 通知服务端业：遥控
-            RemoteOperation remoteOperation = RemoteOperationFactory.buildClientRemoteOperationByMessage(RemoteOperateTypeEnum.REMOTE_CONTROL, message);
+            RemoteOperation remoteOperation = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.REMOTE_CONTROL, message);
             bizDataConsumer.accept(remoteOperation);
 
             LOGGER.info("[服务端-收到I帧消息-遥控数据] 遥控执行-命令, 业务处理完毕, 自动回复 遥控执行-结束");
