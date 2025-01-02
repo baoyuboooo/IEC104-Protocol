@@ -44,7 +44,6 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
      */
     private final Consumer<RemoteOperation> bizDataConsumer;
 
-
     /**
      * 构造函数
      *
@@ -61,21 +60,26 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         LOGGER.info("[服务端-建立连接]");
     }
 
+    /**
+     * 服务端-关闭连接
+     */
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         LOGGER.info("[服务端-关闭连接]");
         //通知服务端业：连接关闭
         RemoteOperation remoteOperate = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
         bizDataConsumer.accept(remoteOperate);
     }
 
-
+    /**
+     * 服务端-收到消息
+     */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Message message) {
 
         LOGGER.debug("[服务端-收到消息-处理开始] **********  Message : {}", JsonUtil.toJsonString(message));
 

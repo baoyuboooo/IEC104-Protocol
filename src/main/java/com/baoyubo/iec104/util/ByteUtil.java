@@ -20,10 +20,10 @@ public final class ByteUtil {
      */
     public static byte[] intToByteArray(int value) {
         return new byte[]{
-                (byte) (value & 0xFF),
-                (byte) ((value >> 8) & 0xFF),
-                (byte) ((value >> 16) & 0xFF),
-                (byte) ((value >> 24) & 0xFF)
+            (byte) (value & 0xFF),
+            (byte) ((value >> 8) & 0xFF),
+            (byte) ((value >> 16) & 0xFF),
+            (byte) ((value >> 24) & 0xFF)
         };
     }
 
@@ -36,9 +36,9 @@ public final class ByteUtil {
      */
     public static int byteArrayToInt(byte[] byteArray) {
         return (byteArray[3] << 24) |
-                ((byteArray[2] & 0xFF) << 16) |
-                ((byteArray[1] & 0xFF) << 8) |
-                (byteArray[0] & 0xFF);
+            ((byteArray[2] & 0xFF) << 16) |
+            ((byteArray[1] & 0xFF) << 8) |
+            (byteArray[0] & 0xFF);
     }
 
 
@@ -50,8 +50,8 @@ public final class ByteUtil {
      */
     public static byte[] shortToByteArray(short value) {
         return new byte[]{
-                (byte) (value & 0xFF),
-                (byte) ((value >> 8) & 0xFF)
+            (byte) (value & 0xFF),
+            (byte) ((value >> 8) & 0xFF)
         };
     }
 
@@ -64,7 +64,7 @@ public final class ByteUtil {
      */
     public static short byteArrayToShort(byte[] byteArray) {
         return (short) ((byteArray[1] << 8) |
-                (byteArray[0] & 0xFF));
+            (byteArray[0] & 0xFF));
     }
 
 
@@ -77,10 +77,10 @@ public final class ByteUtil {
     public static byte[] floatToByteArray(float value) {
         int intValue = Float.floatToIntBits(value);
         return new byte[]{
-                (byte) (intValue & 0xFF),
-                (byte) ((intValue >> 8) & 0xFF),
-                (byte) ((intValue >> 16) & 0xFF),
-                (byte) ((intValue >> 24) & 0xFF)
+            (byte) (intValue & 0xFF),
+            (byte) ((intValue >> 8) & 0xFF),
+            (byte) ((intValue >> 16) & 0xFF),
+            (byte) ((intValue >> 24) & 0xFF)
         };
     }
 
@@ -93,9 +93,9 @@ public final class ByteUtil {
      */
     public static float byteArrayToFloat(byte[] byteArray) {
         int intValue = (byteArray[3] << 24) |
-                ((byteArray[2] & 0xFF) << 16) |
-                ((byteArray[1] & 0xFF) << 8) |
-                (byteArray[0] & 0xFF);
+            ((byteArray[2] & 0xFF) << 16) |
+            ((byteArray[1] & 0xFF) << 8) |
+            (byteArray[0] & 0xFF);
         return Float.intBitsToFloat(intValue);
     }
 
@@ -117,14 +117,14 @@ public final class ByteUtil {
 
         // 默认的高位在前
         byte[] millisecondByte = new byte[]{
-                (byte) ((millisecond >> 24) & 0xFF),
-                (byte) ((millisecond >> 16) & 0xFF),
-                (byte) ((millisecond >> 8) & 0xFF),
-                (byte) (millisecond & 0xFF)
+            (byte) (0),
+            (byte) (0),
+            (byte) ((millisecond >> 8) & 0xFF),
+            (byte) (millisecond & 0xFF)
         };
 
-        bOutput.write((byte) millisecondByte[3]);
-        bOutput.write((byte) millisecondByte[2]);
+        bOutput.write(millisecondByte[3]);
+        bOutput.write(millisecondByte[2]);
 
         // 分钟 只占6个比特位 需要把前两位置为零
         bOutput.write((byte) calendar.get(Calendar.MINUTE));
@@ -163,8 +163,8 @@ public final class ByteUtil {
         int day = byteArray[4] & 0x1F;
         int hour = byteArray[3] & 0x1F;
         int minute = byteArray[2] & 0x3F;
-        int second = byteArray[1] > 0 ? byteArray[1] : (int) (byteArray[1] & 0xff);
-        int millisecond = byteArray[0] > 0 ? byteArray[0] : (int) (byteArray[0] & 0xff);
+        int second = byteArray[1] > 0 ? byteArray[1] : (byteArray[1] & 0xff);
+        int millisecond = byteArray[0] > 0 ? byteArray[0] : (byteArray[0] & 0xff);
 
         millisecond = (second << 8) + millisecond;
         second = millisecond / 1000;
@@ -195,8 +195,8 @@ public final class ByteUtil {
      */
     public static String toHexString(byte[] bytes) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            String s = Integer.toHexString(bytes[i] & 0xFF).toUpperCase();
+        for (byte aByte : bytes) {
+            String s = Integer.toHexString(aByte & 0xFF).toUpperCase();
             if (s.length() == 1) {
                 stringBuilder.append("0");
             }
@@ -220,8 +220,8 @@ public final class ByteUtil {
      */
     public static String toBinaryString(byte[] bytes) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            stringBuilder.append(toBinaryString(bytes[i]));
+        for (byte aByte : bytes) {
+            stringBuilder.append(toBinaryString(aByte));
             stringBuilder.append(" ");
         }
         return stringBuilder.substring(0, stringBuilder.length() - 1);

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import org.springframework.lang.NonNull;
 
 /**
  * IEC104协议 服务端 Channel
@@ -71,7 +72,7 @@ public class Iec104ServerChannel implements ServerChannel {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(@NonNull SocketChannel ch) {
                         ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(255, 1, 1, 0, 0));
                         ch.pipeline().addLast(new LengthAndHeaderPrepender());

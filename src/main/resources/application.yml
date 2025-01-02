@@ -1,11 +1,11 @@
 server:
   port: 8080
-
-spring:
-  application:
-    name: pe-eco-micro
-  http:
+  servlet:
     encoding:
       force: true
       charset: UTF-8
       enabled: true
+
+spring:
+  application:
+    name: pe-eco-micro

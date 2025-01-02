@@ -11,6 +11,7 @@ import java.util.Map;
  * @author yubo.bao
  * @date 2023/7/3 14:29
  */
+@Getter
 public enum UControlEnum {
 
     /**
@@ -45,7 +46,6 @@ public enum UControlEnum {
     ;
 
 
-    @Getter
     private final byte[] controlBytes;
 
     UControlEnum(byte[] controlBytes) {
