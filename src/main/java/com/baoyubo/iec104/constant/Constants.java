@@ -26,27 +26,6 @@ public class Constants {
     // 信息数据-时标 字段长度
     public static final byte MESSAGE_INFO_TIME_SCALE_FIELD_LEN = 7;
 
-
-    // 传输原因 十进制 3
-    public static final short COT_3 = (short) 3;
-    // 传输原因 十进制 4
-    public static final short COT_4 = (short) 4;
-    // 传输原因 十进制 4
-    public static final short COT_5 = (short) 5;
-    // 传输原因 十进制 6
-    public static final short COT_6 = (short) 6;
-    // 传输原因 十进制 7
-    public static final short COT_7 = (short) 7;
-    // 传输原因 十进制 8
-    public static final short COT_8 = (short) 8;
-    // 传输原因 十进制 9
-    public static final short COT_9 = (short) 9;
-    // 传输原因 十进制 10
-    public static final short COT_10 = (short) 10;
-    // 传输原因 十进制 20
-    public static final short COT_20 = (short) 20;
-
-
     // 信息地址 0
     public static final int INFO_ADDRESS_0 = 0;
     // IEC104协议 默认的 公共地址

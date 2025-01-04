@@ -8,6 +8,7 @@ import lombok.Getter;
  * @author yubo.bao
  * @date 2023/7/3 14:09
  */
+@Getter
 public enum RemoteOperateTypeEnum {
 
     /**
@@ -51,10 +52,8 @@ public enum RemoteOperateTypeEnum {
     CLOSE("close", "连接关闭"),
     ;
 
-    @Getter
     private final String type;
 
-    @Getter
     private final String description;
 
 

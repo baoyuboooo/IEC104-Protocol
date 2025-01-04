@@ -100,8 +100,8 @@ class MessageFactoryTest {
     @Test
     void buildServerCallHarunobuMessage() {
         Map<Integer, Object> params = new HashMap<>();
-        params.put(100, (int) 1);
-        params.put(200, (int) 0);
+        params.put(100, 1);
+        params.put(200, 0);
 
         Message message = MessageFactory.buildServerHarunobuMessage(true, params);
         byte[] bytes = encode(message);
@@ -160,10 +160,10 @@ class MessageFactoryTest {
     }
 
     @Test
-    void buildClientTimeReadMessage() {
+    void buildTimeReadMessage() {
         // 2023-06-01 12:12:12
         Date date = new Date(1685592732000L);
-        Message message = MessageFactory.buildClientTimeReadMessage(date);
+        Message message = MessageFactory.buildTimeReadMessage(date);
         byte[] bytes = encode(message);
         Assertions.assertEquals("00 00 00 00 67 01 05 00 00 00 00 00 00 E0 2E 0C 0C 81 06 17", ByteUtil.toHexString(bytes));
 
@@ -175,7 +175,7 @@ class MessageFactoryTest {
     void buildServerTimeReadReplyMessage() {
         // 2023-06-01 12:12:12
         Date date = new Date(1685592732000L);
-        Message message = MessageFactory.buildServerTimeReadReplyMessage(date);
+        Message message = MessageFactory.buildTimeReadMessage(date);
         byte[] bytes = encode(message);
         Assertions.assertEquals("00 00 00 00 67 01 05 00 00 00 00 00 00 E0 2E 0C 0C 81 06 17", ByteUtil.toHexString(bytes));
 

@@ -11,6 +11,7 @@ import java.util.Map;
  * @author yubo.bao
  * @date 2023/7/3 15:08
  */
+@Getter
 public enum QualifiersEnum {
 
     /**
@@ -25,10 +26,8 @@ public enum QualifiersEnum {
     ;
 
 
-    @Getter
     private final byte value;
 
-    @Getter
     private final byte valueHex;
 
 
