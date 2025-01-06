@@ -1,5 +1,13 @@
 package com.baoyubo.iec104.factory;
 
+import static com.baoyubo.iec104.enums.CotEnum.ACT;
+import static com.baoyubo.iec104.enums.CotEnum.ACTCON;
+import static com.baoyubo.iec104.enums.CotEnum.ACTTERM;
+import static com.baoyubo.iec104.enums.CotEnum.INIT;
+import static com.baoyubo.iec104.enums.CotEnum.INTROGEN;
+import static com.baoyubo.iec104.enums.CotEnum.REQ;
+import static com.baoyubo.iec104.enums.CotEnum.SPONT;
+
 import com.baoyubo.business.enums.RemoteOperateTypeEnum;
 import com.baoyubo.business.model.RemoteOperation;
 import com.baoyubo.iec104.constant.Constants;
@@ -131,16 +139,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.INIT_END);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_4);
+        asdu.setTransferReason(INIT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -158,16 +161,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.GENERAL_CALL);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_6);
+        asdu.setTransferReason(ACT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -185,16 +183,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.GENERAL_CALL);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_7);
+        asdu.setTransferReason(ACTCON.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -219,16 +212,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.ONE_POINT_HARUNOBU);
         asdu.setVsq(new MessageVSQ(false, messageInfoList.size()));
-        asdu.setTransferReason(isGeneralCall ? Constants.COT_20 : Constants.COT_3);
+        asdu.setTransferReason(isGeneralCall ? INTROGEN.getCode() : SPONT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(messageInfoList);
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -254,16 +242,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.SHORT_FLOAT_POINT_TELEMETRY);
         asdu.setVsq(new MessageVSQ(false, messageInfoList.size()));
-        asdu.setTransferReason(isGeneralCall ? Constants.COT_20 : Constants.COT_3);
+        asdu.setTransferReason(isGeneralCall ? INTROGEN.getCode() : SPONT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(messageInfoList);
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -281,15 +264,18 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.GENERAL_CALL);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_10);
+        asdu.setTransferReason(ACTTERM.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
+        return getIFrameMessage(asdu);
+    }
+
+    private static Message getIFrameMessage(MessageASDU asdu) {
         Message message = new Message();
         message.setFrameType(FrameTypeEnum.I_FRAME);
         message.setControl(null);
         message.setAsdu(asdu);
-
         return message;
     }
 
@@ -308,16 +294,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.TIME_SYNCHRONIZATION);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_6);
+        asdu.setTransferReason(ACT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -335,25 +316,20 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.TIME_SYNCHRONIZATION);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_7);
+        asdu.setTransferReason(ACTCON.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
     /**
-     * 客户端 时钟读取-命令 (I帧)
+     * 客户端/服务端 时钟读取-命令 (I帧)
      *
      * @return IEC104协议消息
      */
-    public static Message buildClientTimeReadMessage(Date date) {
+    public static Message buildTimeReadMessage(Date date) {
 
         MessageInfo messageInfo = new MessageInfo();
         messageInfo.setInfoAddress(Constants.INFO_ADDRESS_0);
@@ -362,45 +338,12 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.TIME_SYNCHRONIZATION);
         asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_5);
+        asdu.setTransferReason(REQ.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(Collections.singletonList(messageInfo));
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
-
-
-    /**
-     * 服务端 时钟读取-确认 (I帧)
-     *
-     * @return IEC104协议消息
-     */
-    public static Message buildServerTimeReadReplyMessage(Date date) {
-
-        MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setInfoAddress(Constants.INFO_ADDRESS_0);
-        messageInfo.setTimeScale(date);
-
-        MessageASDU asdu = new MessageASDU();
-        asdu.setTypeIdentifier(TypeIdentifierEnum.TIME_SYNCHRONIZATION);
-        asdu.setVsq(new MessageVSQ(false, 1));
-        asdu.setTransferReason(Constants.COT_5);
-        asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
-        asdu.setMessageInfoList(Collections.singletonList(messageInfo));
-
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
-    }
-
 
     /**
      * 客户端 遥控选择-命令 (I帧)
@@ -430,16 +373,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(TypeIdentifierEnum.TWO_POINT_REMOTE_CONTROL);
         asdu.setVsq(new MessageVSQ(false, messageInfoList.size()));
-        asdu.setTransferReason(Constants.COT_6);
+        asdu.setTransferReason(ACT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(messageInfoList);
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -455,16 +393,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(receivedMessage.getAsdu().getTypeIdentifier());
         asdu.setVsq(receivedMessage.getAsdu().getVsq());
-        asdu.setTransferReason(Constants.COT_7);
+        asdu.setTransferReason(ACTCON.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(receivedMessage.getAsdu().getMessageInfoList());
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -482,7 +415,7 @@ public final class MessageFactory {
             byte receivedDCO = receivedMessageInfo.getInfoValue()[0];
 
             int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(receivedDCO);
-            int se = res[0];
+            // int se = res[0];
             int qu = res[1];
             int scs = res[2];
 
@@ -497,16 +430,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(receivedMessage.getAsdu().getTypeIdentifier());
         asdu.setVsq(receivedMessage.getAsdu().getVsq());
-        asdu.setTransferReason(Constants.COT_6);
+        asdu.setTransferReason(ACT.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(messageInfoList);
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 
@@ -519,19 +447,7 @@ public final class MessageFactory {
     public static Message buildServerRemoteControlExecuteReplyMessage(Message receivedMessage) {
 
         // 更新 接收到的消息-传输原因字段
-        MessageASDU asdu = new MessageASDU();
-        asdu.setTypeIdentifier(receivedMessage.getAsdu().getTypeIdentifier());
-        asdu.setVsq(receivedMessage.getAsdu().getVsq());
-        asdu.setTransferReason(Constants.COT_7);
-        asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
-        asdu.setMessageInfoList(receivedMessage.getAsdu().getMessageInfoList());
-
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return buildServerRemoteControlSelectReplyMessage(receivedMessage);
     }
 
 
@@ -547,16 +463,11 @@ public final class MessageFactory {
         MessageASDU asdu = new MessageASDU();
         asdu.setTypeIdentifier(receivedMessage.getAsdu().getTypeIdentifier());
         asdu.setVsq(receivedMessage.getAsdu().getVsq());
-        asdu.setTransferReason(Constants.COT_10);
+        asdu.setTransferReason(ACTTERM.getCode());
         asdu.setCommonAddress(Constants.DEFAULT_COMMON_ADDRESS);
         asdu.setMessageInfoList(receivedMessage.getAsdu().getMessageInfoList());
 
-        Message message = new Message();
-        message.setFrameType(FrameTypeEnum.I_FRAME);
-        message.setControl(null);
-        message.setAsdu(asdu);
-
-        return message;
+        return getIFrameMessage(asdu);
     }
 
 

@@ -1,6 +1,9 @@
 package com.baoyubo.iec104.handler;
 
 
+import static com.baoyubo.iec104.enums.CotEnum.ACT;
+import static com.baoyubo.iec104.enums.CotEnum.REQ;
+
 import com.baoyubo.business.enums.RemoteOperateTypeEnum;
 import com.baoyubo.business.model.RemoteOperation;
 import com.baoyubo.iec104.constant.Constants;
@@ -44,7 +47,6 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
      */
     private final Consumer<RemoteOperation> bizDataConsumer;
 
-
     /**
      * 构造函数
      *
@@ -61,21 +63,26 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         LOGGER.info("[服务端-建立连接]");
     }
 
+    /**
+     * 服务端-关闭连接
+     */
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         LOGGER.info("[服务端-关闭连接]");
         //通知服务端业：连接关闭
         RemoteOperation remoteOperate = RemoteOperationFactory.buildRemoteOperationByMessage(RemoteOperateTypeEnum.CLOSE, null);
         bizDataConsumer.accept(remoteOperate);
     }
 
-
+    /**
+     * 服务端-收到消息
+     */
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Message message) {
 
         LOGGER.debug("[服务端-收到消息-处理开始] **********  Message : {}", JsonUtil.toJsonString(message));
 
@@ -141,7 +148,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
         QualifiersEnum qualifiersEnum = asdu.getMessageInfoList().get(0).getQualifier();
 
         // 总召唤-命令
-        if (TypeIdentifierEnum.GENERAL_CALL == typeIdentifierEnum && Constants.COT_6 == asdu.getTransferReason() && QualifiersEnum.GENERAL_CALL_QUALIFIER == qualifiersEnum) {
+        if (TypeIdentifierEnum.GENERAL_CALL == typeIdentifierEnum && ACT.getCode() == asdu.getTransferReason() && QualifiersEnum.GENERAL_CALL_QUALIFIER == qualifiersEnum) {
             LOGGER.info("[服务端-收到I帧消息-总召唤] 总召唤-命令, 开始自动回复 总召唤-确认");
             Message newMessage = MessageFactory.buildServerGeneralCallReplyMessage();
             ctx.writeAndFlush(newMessage);
@@ -171,7 +178,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
         TypeIdentifierEnum typeIdentifierEnum = asdu.getTypeIdentifier();
 
         // 时钟同步-命令
-        if (TypeIdentifierEnum.TIME_SYNCHRONIZATION == typeIdentifierEnum && Constants.COT_6 == asdu.getTransferReason()) {
+        if (TypeIdentifierEnum.TIME_SYNCHRONIZATION == typeIdentifierEnum && ACT.getCode() == asdu.getTransferReason()) {
             LOGGER.info("[服务端-收到I帧消息-时钟同步] 时钟同步-命令, 自动回复 时钟同步-确认");
             Message newMessage = MessageFactory.buildServerTimeSyncReplyMessage(new Date());
             ctx.writeAndFlush(newMessage);
@@ -179,9 +186,9 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
         }
 
         // 时钟读取-命令
-        if (TypeIdentifierEnum.TIME_SYNCHRONIZATION == typeIdentifierEnum && Constants.COT_5 == asdu.getTransferReason()) {
+        if (TypeIdentifierEnum.TIME_SYNCHRONIZATION == typeIdentifierEnum && REQ.getCode() == asdu.getTransferReason()) {
             LOGGER.info("[服务端-收到I帧消息-时钟同步] 时钟读取-命令，自动回复 时钟读取-确认");
-            Message newMessage = MessageFactory.buildServerTimeReadReplyMessage(new Date());
+            Message newMessage = MessageFactory.buildTimeReadMessage(new Date());
             ctx.writeAndFlush(newMessage);
             return;
         }
@@ -205,11 +212,11 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
         byte dco = asdu.getMessageInfoList().get(0).getInfoValue()[0];
         int[] res = Iec104ByteUtil.parseRemoteControlValueDCO(dco);
         int se = res[0];
-        int qu = res[1];
-        int scs = res[2];
+        // int qu = res[1];
+        // int scs = res[2];
 
         // 遥控选择-命令
-        if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && Constants.COT_6 == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_SELECT == se) {
+        if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && ACT.getCode() == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_SELECT == se) {
             LOGGER.info("[服务端-收到I帧消息-遥控数据] 遥控选择-命令, 自动回复 遥控选择-确认");
             Message newMessage = MessageFactory.buildServerRemoteControlSelectReplyMessage(message);
             ctx.writeAndFlush(newMessage);
@@ -217,7 +224,7 @@ public class ServerDataHandler extends SimpleChannelInboundHandler<Message> {
         }
 
         // 遥控执行-命令
-        if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && Constants.COT_6 == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_EXECUTE == se) {
+        if (TypeIdentifierEnum.isRemoteControl(typeIdentifierEnum) && ACT.getCode() == asdu.getTransferReason() && Constants.REMOTE_CONTROL_SE_EXECUTE == se) {
             LOGGER.info("[服务端-收到I帧消息-遥控数据] 遥控执行-命令, 自动回复 遥控执行-确认");
             Message newMessage = MessageFactory.buildServerRemoteControlExecuteReplyMessage(message);
             ctx.writeAndFlush(newMessage);

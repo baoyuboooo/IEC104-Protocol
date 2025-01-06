@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * 消息缓存管理
- * <p>
+ * <pre>
  * 此场景有如下特种：
  * 1. 有界队列
  * 2. 先进先出(丢弃)
@@ -158,9 +158,7 @@ public class CacheManager {
         // [32765, 32766, 32767, 0, 1]   <-- 0
         List<Message> res = new ArrayList<>();
         boolean find = false;
-        Iterator<Message> iterator = cacheQueue.iterator();
-        while (iterator.hasNext()) {
-            Message message = iterator.next();
+        for (Message message : cacheQueue) {
             if (n == message.getControl().getSendSequenceNum()) {
                 find = true;
             }

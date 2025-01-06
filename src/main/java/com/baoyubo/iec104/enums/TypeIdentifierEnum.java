@@ -11,6 +11,7 @@ import java.util.Map;
  * @author yubo.bao
  * @date 2023/7/3 14:09
  */
+@Getter
 public enum TypeIdentifierEnum {
 
     /**
@@ -74,13 +75,10 @@ public enum TypeIdentifierEnum {
     TWO_POINT_REMOTE_CONTROL(46, 0x2E, 1),
     ;
 
-    @Getter
     private final byte value;
 
-    @Getter
     private final byte valueHex;
 
-    @Getter
     private final int messageInfoValueLength;
 
     /**

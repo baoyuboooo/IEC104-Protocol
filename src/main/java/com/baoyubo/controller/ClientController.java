@@ -3,7 +3,9 @@ package com.baoyubo.controller;
 import com.baoyubo.business.ClientBiz;
 import com.baoyubo.business.enums.RemoteOperateTypeEnum;
 import com.baoyubo.business.model.RemoteOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 客户端 业务API
@@ -24,7 +23,7 @@ import java.util.Map;
 @RestController
 public class ClientController {
 
-    @Autowired
+    @Resource
     private ClientBiz clientBiz;
 
     /**
@@ -35,8 +34,8 @@ public class ClientController {
      */
     @RequestMapping(value = "/iec104/client/start", method = RequestMethod.POST)
     public ResponseEntity<Object> start(
-            @RequestParam(value = "remote_host") String remoteHost,
-            @RequestParam(value = "remote_port") Integer remotePort
+        @RequestParam(value = "remote_host") String remoteHost,
+        @RequestParam(value = "remote_port") Integer remotePort
     ) {
         clientBiz.startClient(remoteHost, remotePort);
         return ResponseEntity.ok().build();
@@ -66,10 +65,10 @@ public class ClientController {
             Map<Integer, Object> params = new HashMap<>();
             remoteOperation.getParams().forEach((k, v) -> {
                 if (RemoteOperateTypeEnum.REMOTE_CONTROL == remoteOperation.getOperateType()
-                        || RemoteOperateTypeEnum.GENERAL_CALL_HARUNOBU == remoteOperation.getOperateType()
-                        || RemoteOperateTypeEnum.HARUNOBU == remoteOperation.getOperateType()
+                    || RemoteOperateTypeEnum.GENERAL_CALL_HARUNOBU == remoteOperation.getOperateType()
+                    || RemoteOperateTypeEnum.HARUNOBU == remoteOperation.getOperateType()
                 ) {
-                    params.put(k, ((Integer) v));
+                    params.put(k, v);
                 } else {
                     params.put(k, ((Double) v).floatValue());
                 }
